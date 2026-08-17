@@ -10,10 +10,17 @@ fetch("/.netlify/functions/fixtures")
         const container = document.getElementById("matches");
 
         if (!container) {
-            throw new Error('Нет элемента id="matches"');
+            throw new Error('Не найден элемент <div id="matches"></div>');
         }
 
         container.innerHTML = "";
+
+        if (!data.response || data.response.length === 0) {
+            container.innerHTML = `
+                <p>Матчи не найдены.</p>
+            `;
+            return;
+        }
 
         data.response.forEach(match => {
             const date = new Date(match.fixture.date);
@@ -35,6 +42,20 @@ fetch("/.netlify/functions/fixtures")
             const homeScore = match.goals.home ?? "-";
             const awayScore = match.goals.away ?? "-";
 
+            const status = match.fixture.status.short;
+
+            let statusText = timeText;
+
+            if (status === "FT") {
+                statusText = "Завершён";
+            } else if (
+                status === "LIVE" ||
+                status === "1H" ||
+                status === "2H"
+            ) {
+                statusText = "LIVE";
+            }
+
             const card = document.createElement("div");
 
             card.className = "match-card";
@@ -44,18 +65,30 @@ fetch("/.netlify/functions/fixtures")
                     ${dateText}
                 </div>
 
-                <div class="team home">
+                <div class="team home-team">
                     <span>${home.name}</span>
-                    <img src="${home.logo}" alt="${home.name}">
+                    <img
+                        src="${home.logo}"
+                        alt="${home.name}"
+                    >
                 </div>
 
-                <div class="score">
-                    <strong>${homeScore} : ${awayScore}</strong>
-                    <small>${timeText}</small>
+                <div class="match-score">
+                    <div class="score">
+                        ${homeScore} : ${awayScore}
+                    </div>
+
+                    <div class="match-status">
+                        ${statusText}
+                    </div>
                 </div>
 
-                <div class="team away">
-                    <img src="${away.logo}" alt="${away.name}">
+                <div class="team away-team">
+                    <img
+                        src="${away.logo}"
+                        alt="${away.name}"
+                    >
+
                     <span>${away.name}</span>
                 </div>
             `;
@@ -64,8 +97,13 @@ fetch("/.netlify/functions/fixtures")
         });
     })
     .catch(error => {
-        console.error(error);
+        console.error("Ошибка загрузки матчей:", error);
 
-        document.getElementById("matches").innerHTML =
-            `<p>Ошибка: ${error.message}</p>`;
+        const container = document.getElementById("matches");
+
+        if (container) {
+            container.innerHTML = `
+                <p>Ошибка: ${error.message}</p>
+            `;
+        }
     });
