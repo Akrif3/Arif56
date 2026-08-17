@@ -7,75 +7,47 @@ fetch("/.netlify/functions/fixtures")
         return response.json();
     })
     .then(data => {
-        console.log("API:", data);
+        const container = document.getElementById("matches");
 
-        const matchesContainer = document.getElementById("matches");
-
-        if (!matchesContainer) {
-            throw new Error("В matches.html нет элемента id=\"matches\"");
+        if (!container) {
+            throw new Error('Нет <div id="matches">');
         }
 
-        if (!data.response || data.response.length === 0) {
-            matchesContainer.innerHTML = "<p>Матчи не найдены.</p>";
-            return;
-        }
-
-        matchesContainer.innerHTML = "";
+        container.innerHTML = "";
 
         data.response.forEach(match => {
             const date = new Date(match.fixture.date);
 
-            const day = date.toLocaleDateString("ru-RU", {
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric"
-            });
-
-            const time = date.toLocaleTimeString("ru-RU", {
-                hour: "2-digit",
-                minute: "2-digit"
-            });
-
-            const home = match.teams.home;
-            const away = match.teams.away;
-
-            const homeScore = match.goals.home ?? "-";
-            const awayScore = match.goals.away ?? "-";
-
             const card = document.createElement("div");
 
-            card.className = "match-card";
-
             card.innerHTML = `
-                <div class="match-date">${day}</div>
+                <div>
+                    <img src="${match.teams.home.logo}" width="40">
+                    <b>${match.teams.home.name}</b>
 
-                <div class="team home-team">
-                    <span>${home.name}</span>
-                    <img src="${home.logo}" alt="${home.name}">
+                    <strong>
+                        ${match.goals.home ?? "-"} : ${match.goals.away ?? "-"}
+                    </strong>
+
+                    <b>${match.teams.away.name}</b>
+                    <img src="${match.teams.away.logo}" width="40">
                 </div>
 
-                <div class="match-score">
-                    <strong>${homeScore} : ${awayScore}</strong>
-                    <small>${time}</small>
-                </div>
-
-                <div class="team away-team">
-                    <img src="${away.logo}" alt="${away.name}">
-                    <span>${away.name}</span>
-                </div>
+                <p>
+                    ${date.toLocaleDateString("ru-RU")}
+                    ${date.toLocaleTimeString("ru-RU", {
+                        hour: "2-digit",
+                        minute: "2-digit"
+                    })}
+                </p>
             `;
 
-            matchesContainer.appendChild(card);
+            container.appendChild(card);
         });
     })
     .catch(error => {
         console.error(error);
 
-        const matchesContainer = document.getElementById("matches");
-
-        if (matchesContainer) {
-            matchesContainer.innerHTML = `
-                <p>Ошибка: ${error.message}</p>
-            `;
-        }
+        document.getElementById("matches").innerHTML =
+            `<p>Ошибка: ${error.message}</p>`;
     });
