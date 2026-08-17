@@ -1,25 +1,26 @@
 fetch("/.netlify/functions/fixtures")
     .then(response => {
         if (!response.ok) {
-            throw new Error("Ошибка загрузки матчей");
+            throw new Error(`HTTP ошибка: ${response.status}`);
         }
 
         return response.json();
     })
     .then(data => {
+        console.log("API:", data);
+
         const matchesContainer = document.getElementById("matches");
 
         if (!matchesContainer) {
-            console.error("Не найден элемент #matches");
-            return;
+            throw new Error("В matches.html нет элемента id=\"matches\"");
         }
-
-        matchesContainer.innerHTML = "";
 
         if (!data.response || data.response.length === 0) {
             matchesContainer.innerHTML = "<p>Матчи не найдены.</p>";
             return;
         }
+
+        matchesContainer.innerHTML = "";
 
         data.response.forEach(match => {
             const date = new Date(match.fixture.date);
@@ -35,54 +36,32 @@ fetch("/.netlify/functions/fixtures")
                 minute: "2-digit"
             });
 
-            const homeTeam = match.teams.home;
-            const awayTeam = match.teams.away;
+            const home = match.teams.home;
+            const away = match.teams.away;
 
-            const homeScore =
-                match.goals.home !== null ? match.goals.home : "-";
-
-            const awayScore =
-                match.goals.away !== null ? match.goals.away : "-";
-
-            const status = match.fixture.status.short;
-
-            let statusText = time;
-
-            if (status === "FT") {
-                statusText = "Завершён";
-            } else if (status === "LIVE" || status === "1H" || status === "2H") {
-                statusText = "LIVE";
-            } else if (status === "NS") {
-                statusText = time;
-            }
+            const homeScore = match.goals.home ?? "-";
+            const awayScore = match.goals.away ?? "-";
 
             const card = document.createElement("div");
 
             card.className = "match-card";
 
             card.innerHTML = `
-                <div class="match-date">
-                    ${day}
-                </div>
+                <div class="match-date">${day}</div>
 
                 <div class="team home-team">
-                    <span>${homeTeam.name}</span>
-                    <img src="${homeTeam.logo}" alt="${homeTeam.name}">
+                    <span>${home.name}</span>
+                    <img src="${home.logo}" alt="${home.name}">
                 </div>
 
                 <div class="match-score">
-                    <div class="score">
-                        ${homeScore} : ${awayScore}
-                    </div>
-
-                    <div class="match-status">
-                        ${statusText}
-                    </div>
+                    <strong>${homeScore} : ${awayScore}</strong>
+                    <small>${time}</small>
                 </div>
 
                 <div class="team away-team">
-                    <img src="${awayTeam.logo}" alt="${awayTeam.name}">
-                    <span>${awayTeam.name}</span>
+                    <img src="${away.logo}" alt="${away.name}">
+                    <span>${away.name}</span>
                 </div>
             `;
 
@@ -95,7 +74,8 @@ fetch("/.netlify/functions/fixtures")
         const matchesContainer = document.getElementById("matches");
 
         if (matchesContainer) {
-            matchesContainer.innerHTML =
-                "<p>Не удалось загрузить матчи.</p>";
+            matchesContainer.innerHTML = `
+                <p>Ошибка: ${error.message}</p>
+            `;
         }
     });
