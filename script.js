@@ -10,7 +10,7 @@ fetch("/.netlify/functions/fixtures")
         const container = document.getElementById("matches");
 
         if (!container) {
-            throw new Error('Нет <div id="matches">');
+            throw new Error('Нет элемента id="matches"');
         }
 
         container.innerHTML = "";
@@ -18,28 +18,46 @@ fetch("/.netlify/functions/fixtures")
         data.response.forEach(match => {
             const date = new Date(match.fixture.date);
 
+            const dateText = date.toLocaleDateString("ru-RU", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric"
+            });
+
+            const timeText = date.toLocaleTimeString("ru-RU", {
+                hour: "2-digit",
+                minute: "2-digit"
+            });
+
+            const home = match.teams.home;
+            const away = match.teams.away;
+
+            const homeScore = match.goals.home ?? "-";
+            const awayScore = match.goals.away ?? "-";
+
             const card = document.createElement("div");
 
+            card.className = "match-card";
+
             card.innerHTML = `
-                <div>
-                    <img src="${match.teams.home.logo}" width="40">
-                    <b>${match.teams.home.name}</b>
-
-                    <strong>
-                        ${match.goals.home ?? "-"} : ${match.goals.away ?? "-"}
-                    </strong>
-
-                    <b>${match.teams.away.name}</b>
-                    <img src="${match.teams.away.logo}" width="40">
+                <div class="match-date">
+                    ${dateText}
                 </div>
 
-                <p>
-                    ${date.toLocaleDateString("ru-RU")}
-                    ${date.toLocaleTimeString("ru-RU", {
-                        hour: "2-digit",
-                        minute: "2-digit"
-                    })}
-                </p>
+                <div class="team home">
+                    <span>${home.name}</span>
+                    <img src="${home.logo}" alt="${home.name}">
+                </div>
+
+                <div class="score">
+                    <strong>${homeScore} : ${awayScore}</strong>
+                    <small>${timeText}</small>
+                </div>
+
+                <div class="team away">
+                    <img src="${away.logo}" alt="${away.name}">
+                    <span>${away.name}</span>
+                </div>
             `;
 
             container.appendChild(card);
