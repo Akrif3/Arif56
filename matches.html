@@ -4,7 +4,7 @@
 <title>Matches</title> 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-    #matches {
+  #matches {
     max-width: 1000px;
     margin: 40px auto;
     padding: 0 20px;
@@ -16,23 +16,27 @@
     align-items: center;
     gap: 20px;
 
-    background: #ffffff;
+    background: #181b21;
+    border: 1px solid #303640;
     border-radius: 16px;
+
     padding: 18px 22px;
     margin-bottom: 12px;
 
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    box-sizing: border-box;
 }
 
 .match-date {
     font-size: 14px;
-    color: #777;
+    color: #9ca3af;
+    text-align: center;
 }
 
 .team {
     display: flex;
     align-items: center;
     gap: 12px;
+
     font-weight: 600;
 }
 
@@ -49,9 +53,15 @@
 
 .away-team {
     justify-content: flex-start;
+    text-align: left;
 }
 
 .match-score {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
     text-align: center;
 }
 
@@ -63,25 +73,7 @@
 .match-status {
     margin-top: 5px;
     font-size: 13px;
-    color: #777;
-}
-
-@media (max-width: 700px) {
-    .match-card {
-        grid-template-columns: 1fr;
-        gap: 10px;
-        text-align: center;
-    }
-
-    .home-team,
-    .away-team {
-        justify-content: center;
-        text-align: center;
-    }
-
-    .match-date {
-        text-align: center;
-    }
+    color: #9ca3af;
 }
 body {background-color: #0f1115;
     color: #e5e7eb;
